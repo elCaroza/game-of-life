@@ -1,0 +1,28 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 70vh;
+  width: 70vw;
+  padding: 30px;
+  border: 2px solid #999;
+  border-radius: 26px;
+  background-color: #333;
+
+  .words-board  {
+    width: 100%;
+    height: 70%;
+    background-color: #999;
+    border: 2px solid #EBEBEB;
+    padding: 20px;
+    border-radius: 0px 0px 26px 26px;
+
+    .words  {
+      color: #EBEBEB;
+      font-size: 30px;
+      font-weight: bold;
+      word-break: break-all;
+    }
+
+  }
+}

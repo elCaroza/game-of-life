@@ -1,0 +1,9 @@
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import {{pascalCase name}} from './';
+
+test('renders learn react link', () => {
+  render(<{{pascalCase name}} />);
+  const linkElement = screen.getByText(/learn react/i);
+  expect(linkElement).toBeInTheDocument();
+});
