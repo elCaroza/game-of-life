@@ -1,10 +1,10 @@
 import { COMPONENT_SETTINGS } from './App-Settings';
 import "./App-Styles.scss";
-import AudioManager from '../AudioManager';
+// import AudioManager from '../AudioManager';
 // import axios from 'axios';
 import FilesManager from '../FilesManager';
-import ChatRoom from '../ChatRoom/ChatRoom';
-import Demo from '../DemoMUI/Demo';
+// import ChatRoom from '../ChatRoom/ChatRoom';
+// import Demo from '../DemoMUI/Demo';
 import Elevation from '../DemoMUI/Elevation';
 
 import Paper from '@mui/material/Paper';
@@ -13,9 +13,11 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import { Button, CardActionArea, CardActions } from '@mui/material';
-import World from '../Game/World';
+// import World from '../Game/World';
 import Player from '../Game/Player';
 import GenerationsLabelling from '../Game/GenerationsLabelling';
+import GameOfLife from '../Game/GameOfLife';
+import { FREE_GENERATION } from '../../config/app';
 
 const ContentApp = styled(Paper)(({ theme }) => ({
   ...theme.typography.body2,
@@ -199,7 +201,8 @@ export default class AppComponent extends COMPONENT_SETTINGS.PROTO_CLASS {
   }
 
   render() {
-    const { contentData } = this.props;
+    //const { contentData } = this.props;
+
     return(
       <ThemeProvider theme={ darkTheme }>
         <ContentApp>
@@ -209,7 +212,7 @@ export default class AppComponent extends COMPONENT_SETTINGS.PROTO_CLASS {
                 <Typography gutterBottom variant="h4" component="div">
                   Game of life
                 </Typography>
-                { ( this.state.isGaming == false ) && (
+                { ( this.state.isGaming === false ) && (
                   <>
                     <Typography variant="body2" color="text.secondary" style={{margin:"20px" }}>
                       Drag and drop below your .txt file with starting generation of cells, 
@@ -239,8 +242,8 @@ export default class AppComponent extends COMPONENT_SETTINGS.PROTO_CLASS {
                   </>
                 ) }
 
-              { ( this.state.isGaming == true ) && (
-                <World />
+              { ( this.state.isGaming === true ) && (
+                <GameOfLife />
               ) }
                 
               </CardContent>
@@ -250,15 +253,26 @@ export default class AppComponent extends COMPONENT_SETTINGS.PROTO_CLASS {
                 <Button color="primary" variant="contained" size="large" style={{margin:"auto" }} 
                 onClick={this.startGame}>Start gaming</Button>
               ) }
-              { ( this.state.isGaming == true ) && (
+              { ( this.state.isGaming === true ) && (
                 <>
                   <Player 
+                    generations={[
+                      FREE_GENERATION,
+                      "gen3.txt",
+                      "gen4.txt"
+                    ]} 
                     defaultRefresh={1} 
                     min={0.1} 
                     max={5}
-                    step={0.2}   
+                    step={0.2} 
+                    getSettings={( action : string, realUpdate : any )=> {
+                      this.props.settingData({
+                        action : action,
+                        realUpdate : realUpdate
+                      })
+                    }}  
                   />
-                  <GenerationsLabelling currentValue={0} />
+                  <GenerationsLabelling currentValue={ this.props.contentData.numberOfGenerations } />
                 </>
               ) }
             </CardActions>
@@ -271,7 +285,7 @@ export default class AppComponent extends COMPONENT_SETTINGS.PROTO_CLASS {
   // NON USATO
   render222(){
 
-    const { contentData } = this.props;
+    //const { contentData } = this.props;
 
     return(
       <div className="container App">

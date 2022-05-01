@@ -21,29 +21,29 @@ const chunkSize = 10 * 1024;
 //   return apiPath
 // }
 
-function _base64ToArrayBuffer(base64) {
-  var binary_string = window.atob(base64);
-  var len = binary_string.length;
-  var bytes = new Uint8Array(len);
-  for (var i = 0; i < len; i++) {
-      bytes[i] = binary_string.charCodeAt(i);
-  }
-  return bytes.buffer;
-}
+// function _base64ToArrayBuffer(base64) {
+//   var binary_string = window.atob(base64);
+//   var len = binary_string.length;
+//   var bytes = new Uint8Array(len);
+//   for (var i = 0; i < len; i++) {
+//       bytes[i] = binary_string.charCodeAt(i);
+//   }
+//   return bytes.buffer;
+// }
 
 export function FilesManagerComponent( props : I__COMPONENT_SETTINGS[ "PROPS" ] ) {
 
   const [dropzoneActive, setDropzoneActive] = useState(false);
   const [files, setFiles] = useState([] as any[]);
   const [currentFileIndex, setCurrentFileIndex] = useState(null);
-  const [lastUploadedFileIndex, setLastUploadedFileIndex] = useState(null);
+  const [lastUploadedFileIndex/*, setLastUploadedFileIndex*/] = useState(null);
   const [currentChunkIndex, setCurrentChunkIndex] = useState(null);
   const [invalidFile, setInvalidFile] = useState(false);
 
   const updateFilesWith = ( content : any ) => {
     var newFiles = [] as any[];   
     files.map( (f) => {
-      if(f != {}) {
+      if(f !== {}) {
         let newFile = {
           ...f,
           ...( f.name === content.name ? content : {} )
@@ -96,10 +96,10 @@ export function FilesManagerComponent( props : I__COMPONENT_SETTINGS[ "PROPS" ] 
   //   }, 5000);
   // }
 
-  const onMessageReceived = (payload)=>{
-    var payloadData = JSON.parse(payload.body);
-    updateFilesWith( payloadData );
-  }
+  // const onMessageReceived = (payload)=>{
+  //   var payloadData = JSON.parse(payload.body);
+  //   updateFilesWith( payloadData );
+  // }
   // const onPrivateMessage = (payload)=>{
   //   console.log("onPrivateMessage:::", payload);
   // }
@@ -112,9 +112,9 @@ export function FilesManagerComponent( props : I__COMPONENT_SETTINGS[ "PROPS" ] 
 //     stompClient.send("/app/message", {}, JSON.stringify(contentFile));
 // }
 
-  const onError = (err) => {
-    console.log("ERROR SOCKET:", err);  
-  }
+  // const onError = (err) => {
+  //   console.log("ERROR SOCKET:", err);  
+  // }
 
   // const sendMSG=( msg : any )=>{
   //   var thisMsg = {
@@ -253,7 +253,7 @@ export function FilesManagerComponent( props : I__COMPONENT_SETTINGS[ "PROPS" ] 
 
       <div className="files">
         {files.map((file,fileIndex) => {
-          let linkPath = "";
+          //let linkPath = "";
           let progress = file["chunks"] ? Math.round((file["chunks"]["currentChunkIndex"] as any) / file["chunks"]["totalChunks"] * 100) : 0;
           let labelName = `${ file["name"]} ${ (progress === 100 ? '' : `( ${ progress }% )` ) }`;
 

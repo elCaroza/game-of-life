@@ -1,5 +1,5 @@
 import /*React,*/ { Component } from 'react';
-import { INITIAL_APP_STATE, T__GenericFunctionVoid } from '../../config/app';
+import { T__GenericFunctionVoid } from '../../config/app';
 
 type T__Props = { 
   loadingData : T__GenericFunctionVoid;
@@ -9,7 +9,6 @@ type T__Props = {
 
 export const COMPONENT_SETTINGS = {
   INITIAL_STATE : {
-    //...INITIAL_APP_STATE
     starting : undefined,
     isGaming : false
   },

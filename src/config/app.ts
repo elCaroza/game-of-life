@@ -2,8 +2,13 @@
 export type T__GenericFunctionVoid = ( args? : any ) => void;
 
 export const INITIAL_APP_STATE = {
-    val : 2   
+    cells: [],
+    isRunning: false,
+    interval: 100,
+    numberOfGenerations : 0
 }
+
+export const FREE_GENERATION = "*** FREE ***";
 
 export const ACTIONS_MAPPERS = {
     "GET_ALL"               : "[ appData ] : Get all settings from redux",
