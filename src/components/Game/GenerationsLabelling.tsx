@@ -7,9 +7,9 @@ const shapeStyles = { width: 50, height: 50 };
 
 export default function GenerationsLabelling( props ) {
   return (
-    <Box sx={{ width: 250, textAlign :"right" }}>
+    <Box sx={{ width: 250, textAlign : "right" }}>
       <Badge color="primary" badgeContent={ props.currentValue } showZero max={ 1000000000000000 }>
-        <LanguageIcon sx={shapeStyles} />
+        <LanguageIcon sx={ shapeStyles } />
       </Badge>
     </Box>
   );

@@ -10,30 +10,31 @@ import ClearIcon from '@mui/icons-material/Clear';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import "./Player.scss";
 
 export default function Player( props ) {
-  const [value, setValue] = React.useState<boolean>( false );
-  const [refresh, setRefresh] = React.useState<number>( props.defaultRefresh );
-  const [selection, setSelection] = React.useState<string>( props.generations[ 0 ] );
-  const handleChangeMultiple = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const [ value, setValue ] = React.useState<boolean>( false );
+  const [ refresh, setRefresh ] = React.useState<number>( props.defaultRefresh );
+  const [ selection, setSelection ] = React.useState<string>( props.generations[ 0 ] );
+  const handleChangeMultiple = ( event: React.ChangeEvent<HTMLSelectElement> ) => {
     const { options } = event.target;
     const value: string[] = [];
     for (let i = 0, l = options.length; i < l; i += 1) {
-      if (options[i].selected) {
-        value.push(options[i].value);
+      if (options[ i ].selected) {
+        value.push( options[ i ].value);
       }
     }
-    setSelection( value[0] );
+    setSelection( value[ 0 ] );
     setValue( false );
-    props.getSettings( "generation", value[0] )
+    props.getSettings( "generation", value[ 0 ] )
   };
 
   const isFreeGeneration = ( ) : boolean => ( selection === props.generations[ 0 ] )
   const isRunning = ( ) : boolean => ( value === true )
 
-  const handleChangeRefresh = (event: Event, newRefresh: number | number[]) => {
-    if (typeof newRefresh === 'number') {
-      setRefresh(newRefresh);
+  const handleChangeRefresh = ( event: Event, newRefresh: number | number[] ) => {
+    if ( typeof newRefresh === "number" ) {
+      setRefresh( newRefresh );
       props.getSettings( "interval", newRefresh )
     }
   };
@@ -54,25 +55,25 @@ export default function Player( props ) {
   }
 
   return (
-      <div style={{ display: "flex" }}>
+      <div className="player">
          <Box sx={{ width: 250 }}>
           <FormControl sx={{ m: 1, minWidth: 200, maxWidth: 300 }}>
-            <InputLabel shrink htmlFor="select-multiple-native">
+            <InputLabel shrink htmlFor="select-single-native">
               Generation init
             </InputLabel>
             <Select
               native
-              value={selection}
+              value={ selection }
               // @ts-ignore Typings are not considering `native`
-              onChange={handleChangeMultiple}
+              onChange={ handleChangeMultiple }
               label="Native"
               inputProps={{
-                id: 'select-multiple-native',
+                id : "select-single-native",
               }}
             >
-              {props.generations.map((name) => (
-                <option key={name} value={name}>
-                  {name}
+              { props.generations.map( ( name ) => (
+                <option key={ name } value={ name }>
+                  { name }
                 </option>
               ))}
             </Select>
@@ -83,23 +84,23 @@ export default function Player( props ) {
                 Refresh on: <strong>{ refresh }</strong> seconds
             </Typography>
             <Slider
-                value={refresh}
+                value={ refresh } 
                 min={ props.min }
                 step={ props.step }
                 max={ props.max }
-                onChange={handleChangeRefresh}
+                onChange={ handleChangeRefresh }
                 valueLabelDisplay="auto"
                 aria-labelledby="non-linear-slider"
             />
         </Box>
-        <Box sx={{ padding : "0px 20px 0px 20px" }}>
-            <Button variant="outlined" size="large" onClick={ ()=> handleClick( "isRunning" ) } startIcon={( value ? <PauseIcon /> : <PlayArrowIcon /> )} style={{ margin: "20px 10px 0px 10px"}}>
+        <Box className="box-player-container">
+            <Button variant="outlined" size="large" onClick={ ()=> handleClick( "isRunning" ) } startIcon={( value ? <PauseIcon /> : <PlayArrowIcon /> )} className="btn-player">
                 { value ? "Pause" : "Play" }
             </Button>
-            <Button disabled={ isFreeGeneration() && isRunning() } variant="outlined" size="large" onClick={ () => handleClick( "try" ) } startIcon={<TryIcon />} style={{ margin: "20px 10px 0px 10px"}}>
+            <Button disabled={ isFreeGeneration() && isRunning() } variant="outlined" size="large" onClick={ () => handleClick( "try" ) } startIcon={<TryIcon />} className="btn-player">
                 Try
             </Button>
-            <Button variant="outlined" size="large" onClick={ () => handleClick( "clear" ) } startIcon={<ClearIcon />} style={{ margin: "20px 10px 0px 10px"}}>
+            <Button variant="outlined" size="large" onClick={ () => handleClick( "clear" ) } startIcon={<ClearIcon />} className="btn-player">
                 Clear
             </Button>
         </Box>

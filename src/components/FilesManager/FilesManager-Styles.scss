@@ -1,4 +1,4 @@
-.FilesManager {
+.files-manager {
   width: 100%;
   //height: 300px;
   margin: 10px 0px 10px 0px;
@@ -10,6 +10,7 @@
     text-align: center;
     text-transform: uppercase;
     color: rgba(255,255,255,0.6);
+    height: 130px;
   }
   .dropzone.active{
     border-color:#fff;
@@ -48,6 +49,14 @@
   }
   .file .progress.done{
     top: 100px;
+  }
+
+  .invalid-file-container {
+    margin: 20px 0px 20px 0px !important;
+
+    .main-title {
+      text-align:left
+    }
   }
 
 }

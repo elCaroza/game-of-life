@@ -19,6 +19,15 @@ export const A__setAll = ( data : any ) => {
   };
 };
 
+export const A__updFiles = ( data : any ) => {
+  return( dispatch : any ) => {
+    dispatch({
+      type: ACTIONS_MAPPERS[ "UPD_FILES" ],
+      payload : data
+    });
+  };
+};
+
 
 
 

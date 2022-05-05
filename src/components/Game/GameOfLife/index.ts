@@ -3,13 +3,22 @@ import GameOfLifeComponent from './GameOfLife-Component';
 import { /*A__getAll,*/ A__setAll } from '../../../store/actions/appActions';
 
 const mapStateToProps = ( state : any ) => {
+
+  var appData = state.appData;
+
   return {
   	// error: state.alerts.error,
   	// loading: state.loading.loading,
   	// success: state.alerts.success,
 
-
-    contentData : state.appData
+    contentData : () => {
+      var realUpdate = appData.realUpdate || undefined;
+      return {
+        action : appData.action || undefined,
+        realUpdate : realUpdate,
+        initGeneration : appData.fromFilesGenerationsInit[ realUpdate ] || undefined
+      } 
+    } 
   }
 };
 

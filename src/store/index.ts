@@ -6,7 +6,7 @@ import reducers from "./reducers";
 export const store = createStore(
   reducers,
   composeWithDevTools(
-    applyMiddleware(thunk)
+    applyMiddleware( thunk )
   ),
 );
 

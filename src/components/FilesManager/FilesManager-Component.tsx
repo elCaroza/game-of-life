@@ -33,25 +33,26 @@ const chunkSize = 10 * 1024;
 
 export function FilesManagerComponent( props : I__COMPONENT_SETTINGS[ "PROPS" ] ) {
 
-  const [dropzoneActive, setDropzoneActive] = useState(false);
-  const [files, setFiles] = useState([] as any[]);
-  const [currentFileIndex, setCurrentFileIndex] = useState(null);
-  const [lastUploadedFileIndex/*, setLastUploadedFileIndex*/] = useState(null);
-  const [currentChunkIndex, setCurrentChunkIndex] = useState(null);
-  const [invalidFile, setInvalidFile] = useState(false);
+  const [ dropzoneActive, setDropzoneActive ] = useState( false );
+  const [ files, setFiles ] = useState( [] as any[] );
+  const [ currentFileIndex, setCurrentFileIndex ] = useState( null );
+  const [ lastUploadedFileIndex /*, setLastUploadedFileIndex*/ ] = useState( null );
+  const [ currentChunkIndex, setCurrentChunkIndex ] = useState( null );
+  const [ invalidFile, setInvalidFile ] = useState( false );
 
   const updateFilesWith = ( content : any ) => {
     var newFiles = [] as any[];   
-    files.map( (f) => {
-      if(f !== {}) {
+    files.map( ( f ) => {
+      if( f !== {} ) {
         let newFile = {
           ...f,
           ...( f.name === content.name ? content : {} )
         }
-        newFiles.push(newFile)
+        newFiles.push( newFile )
       }
+      return true
     } )
-    setFiles([...newFiles] as any);
+    setFiles( [ ...newFiles ] as any );
   }
 
     
@@ -124,47 +125,47 @@ export function FilesManagerComponent( props : I__COMPONENT_SETTINGS[ "PROPS" ] 
   //   stompClient.send("/app/message", {}, JSON.stringify(thisMsg));
   // }
 
-  function handleDrop(e : any) {
+  function handleDrop( e : any ) {
     e.preventDefault();
-    setFiles([...files, ...e.dataTransfer.files] as any);
+    setFiles( [ ...files, ...e.dataTransfer.files ] as any );
   }
 
   function readAndUploadCurrentChunk() {
     const reader = new FileReader();
-    const file = files[currentFileIndex as any] as string;
-    if (!file) {
+    const file = files[ currentFileIndex as any ] as string;
+    if ( !file ) {
       return;
     }
-    const from = Number(currentChunkIndex) * chunkSize;
+    const from = Number( currentChunkIndex ) * chunkSize;
     const to = from + chunkSize;
-    const blob = file.slice(from, to) as any;
-    reader.onload = e => uploadChunk(e);
-    reader.readAsDataURL(blob);
+    const blob = file.slice( from, to ) as any;
+    reader.onload = e => uploadChunk( e );
+    reader.readAsDataURL( blob );
   }
 
-  function uploadChunk(readerEvent : any) {
+  function uploadChunk( readerEvent : any ) {
     // const headers = {'Content-Type': 'application/json'};
     // const url =  GET_API_LINK_FROM( "", "upload" );  //'http://localhost:4001/upload?'+params.toString();
     
-    const file = files[currentFileIndex as any];
+    const file = files[ currentFileIndex as any ];
     const isAudio = (file["type"] as string).startsWith( `${ props.fileType }/` );
     setInvalidFile( !isAudio );
     if( isAudio ) {
       var content = {
         file : readerEvent.target.result as string,
-        name : file["name"] as string,
-        size : file["size"],
+        name : file[ "name" ] as string,
+        size : file[ "size" ],
         chunks : {
-          currentChunkIndex : Number(currentChunkIndex),
-          totalChunks : Number(Math.ceil(file["size"] / chunkSize))
+          currentChunkIndex : Number( currentChunkIndex ),
+          totalChunks : Number( Math.ceil( file[ "size" ] / chunkSize ) )
         },
         loading : () => {
           updateFilesWith( content )
         },
         getContent : () => {
           const encodingIn = "base64";
-          const fileContent = (content.file.split( `${ encodingIn },` ))[ 1 ]
-          const myBuffer = Buffer.from( fileContent , encodingIn);
+          const fileContent = ( content.file.split( `${ encodingIn },` ))[ 1 ]
+          const myBuffer = Buffer.from( fileContent , encodingIn );
           var c = myBuffer.toString();
           return c;
         }
@@ -211,64 +212,64 @@ export function FilesManagerComponent( props : I__COMPONENT_SETTINGS[ "PROPS" ] 
   }
 
   useEffect(() => {
-    if (lastUploadedFileIndex === null) {
+    if ( lastUploadedFileIndex === null ) {
       return;
     }
     const isLastFile = lastUploadedFileIndex === files.length - 1;
-    const nextFileIndex = isLastFile ? null : (currentFileIndex as any) + 1;
-    setCurrentFileIndex(nextFileIndex);
-  }, [lastUploadedFileIndex]);
+    const nextFileIndex = isLastFile ? null : ( currentFileIndex as any ) + 1;
+    setCurrentFileIndex( nextFileIndex );
+  }, [ lastUploadedFileIndex, currentFileIndex, files.length ] );
 
   useEffect(() => {
-    if (files.length > 0) {
-      if (currentFileIndex === null) {
+    if ( files.length > 0 ) {
+      if ( currentFileIndex === null ) {
         setCurrentFileIndex(
-          (lastUploadedFileIndex as any) === null ? 0 : (lastUploadedFileIndex as any) + 1
+          ( lastUploadedFileIndex as any ) === null ? 0 : ( lastUploadedFileIndex as any ) + 1
         );
       }
     }
-  }, [files.length]);
+  }, [ lastUploadedFileIndex, currentFileIndex, files.length ] );
 
   useEffect(() => {
-    if (currentFileIndex !== null) {
-      setCurrentChunkIndex(0 as any);
+    if ( currentFileIndex !== null ) {
+      setCurrentChunkIndex( 0 as any );
     }
-  }, [currentFileIndex]);
+  }, [ currentFileIndex ] );
 
   useEffect(() => {
-    if (currentChunkIndex !== null) {
+    if ( currentChunkIndex !== null ) {
       readAndUploadCurrentChunk();
     }
-  }, [currentChunkIndex]);
+  }, [ currentChunkIndex ] );
 
   return (
-    <div className="FilesManager">
+    <div className="files-manager">
       <div
-        onDragOver={e => {setDropzoneActive(true); e.preventDefault();}}
-        onDragLeave={e => {setDropzoneActive(false); e.preventDefault();}}
-        onDrop={e => handleDrop(e)}
-        className={"dropzone" + (dropzoneActive ? " active" : "")}>
+        onDragOver={ e => { setDropzoneActive( true ); e.preventDefault(); }}
+        onDragLeave={ e => { setDropzoneActive( false ); e.preventDefault(); }}
+        onDrop={ e => handleDrop( e ) }
+        className={"dropzone" + ( dropzoneActive ? " active" : "" ) }>
           Drop your <b>{ props.fileType }</b> file here
       </div>
 
       <div className="files">
-        {files.map((file,fileIndex) => {
+        { files.map( ( file, fileIndex ) => {
           //let linkPath = "";
-          let progress = file["chunks"] ? Math.round((file["chunks"]["currentChunkIndex"] as any) / file["chunks"]["totalChunks"] * 100) : 0;
-          let labelName = `${ file["name"]} ${ (progress === 100 ? '' : `( ${ progress }% )` ) }`;
+          let progress = file[ "chunks" ] ? Math.round( ( file[ "chunks" ][ "currentChunkIndex" ] as any ) / file[ "chunks" ][ "totalChunks" ] * 100 ) : 0;
+          let labelName = `${ file[ "name" ] } ${ ( progress === 100 ? "" : `( ${ progress }% )` ) }`;
 
           return (
-            <div key={ `${ file["name"] }-${ fileIndex }` } className="file">
-              <div className="name">{ labelName }</div>
-              <div className={"progress " + (progress === 100 ? 'done' : '')} style={{width:progress+'%'}}></div>
+            <div key={ `${ file[ "name" ] }-${ fileIndex }` } className="file">
+              <div className="name" >{ labelName }</div>
+              <div className={ "progress " + ( progress === 100 ? "done" : "" )} style={{ width: progress + "%" }}></div>
             </div>
           ); 
         })}
       </div>
 
       { invalidFile && (
-        <Alert variant="filled" severity="error" style={{ margin:"20px 0px 20px 0px" }}>
-          <AlertTitle  style={{textAlign:"left" }}>Error</AlertTitle>
+        <Alert variant="filled" severity="error" className="invalid-file-container">
+          <AlertTitle className="main-title">Error</AlertTitle>
           This file is not valid, please serve <strong>{ props.fileType }</strong> type file
         </Alert>
       )}

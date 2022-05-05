@@ -1,4 +1,4 @@
-import { COMPONENT_SETTINGS } from './App-Settings';
+import { COMPONENT_SETTINGS, ContentApp } from './App-Settings';
 import "./App-Styles.scss";
 // import AudioManager from '../AudioManager';
 // import axios from 'axios';
@@ -7,29 +7,29 @@ import FilesManager from '../FilesManager';
 // import Demo from '../DemoMUI/Demo';
 import Elevation from '../DemoMUI/Elevation';
 
-import Paper from '@mui/material/Paper';
-import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
+// import Paper from '@mui/material/Paper';
+import { /*createTheme, styled,*/ ThemeProvider } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import { Button, CardActionArea, CardActions } from '@mui/material';
-// import World from '../Game/World';
 import Player from '../Game/Player';
 import GenerationsLabelling from '../Game/GenerationsLabelling';
 import GameOfLife from '../Game/GameOfLife';
 import { FREE_GENERATION } from '../../config/app';
+import { getFileGenerationAsData } from '../../config/utils';
 
-const ContentApp = styled(Paper)(({ theme }) => ({
-  ...theme.typography.body2,
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-  with : "100vw",
-  height : "100vh",
-  padding : 20,
-  display : "flex",
-  alignItems : "center"
-}));
-const darkTheme = createTheme({ palette: { mode: 'dark' } });
+// const ContentApp = styled( Paper )(({ theme }) => ({
+//   ...theme.typography.body2,
+//   textAlign: "center",
+//   color: theme.palette.text.secondary,
+//   with : "100vw",
+//   height : "100vh",
+//   padding : 20,
+//   display : "flex",
+//   alignItems : "center"
+// }));
+//const darkTheme = createTheme({ palette: { mode: "dark" } });
 
 // import { map } from "rxjs/operators";
 // import { interval } from 'rxjs';
@@ -88,6 +88,7 @@ const darkTheme = createTheme({ palette: { mode: 'dark' } });
 export default class AppComponent extends COMPONENT_SETTINGS.PROTO_CLASS {
 
   state = COMPONENT_SETTINGS.INITIAL_STATE;
+  checkInterval = {};
 
   // constructor( props : any ) {
   //   super( props );
@@ -181,9 +182,9 @@ export default class AppComponent extends COMPONENT_SETTINGS.PROTO_CLASS {
   //   }
   // }
 
-  exampleActionRedux = () => {
-    this.props.settingData({ val : this.props.contentData.val + 1 })
-  }
+  // exampleActionRedux = () => {
+  //   this.props.settingData({ val : this.props.contentData.val + 1 })
+  // }
 
   // clientRef : any;
 
@@ -201,12 +202,12 @@ export default class AppComponent extends COMPONENT_SETTINGS.PROTO_CLASS {
   }
 
   render() {
-    //const { contentData } = this.props;
+    const { filesGenerations, numberOfGenerations } = this.props.contentData;
 
     return(
-      <ThemeProvider theme={ darkTheme }>
+      <ThemeProvider theme={ COMPONENT_SETTINGS.DARK_THEME }>
         <ContentApp>
-          <Card sx={{ my:4, margin : "auto"}} elevation={24}>
+          <Card sx={{ my:4, margin : "auto" }} elevation={ 24 }>
             <CardActionArea>
               <CardContent>
                 <Typography gutterBottom variant="h4" component="div">
@@ -214,27 +215,31 @@ export default class AppComponent extends COMPONENT_SETTINGS.PROTO_CLASS {
                 </Typography>
                 { ( this.state.isGaming === false ) && (
                   <>
-                    <Typography variant="body2" color="text.secondary" style={{margin:"20px" }}>
+                    <Typography variant="body2" color="text.secondary" className="intro-txt">
                       Drag and drop below your .txt file with starting generation of cells, 
                       typing "." to point dead cells and "*" to alive ones, <br />
                       this file will be read as a per row and column vector  
                     </Typography>
                     <FilesManager 
-                      fileType={"text"}
-                      onLoading={( content ) => { 
+                      fileType={ "text" }
+                      onLoading={( data ) => { 
 
                         // fake loading 
-                        content.chunks.totalChunks = 100
-                        var checkInterval = setInterval( () => {
-                          if( content.chunks.currentChunkIndex < 100 ) {
-                            content.chunks.currentChunkIndex++;
-                            content.loading()   
+                        data.chunks.totalChunks = 100
+                        this.checkInterval[ data.name ] = setInterval( () => {
+                          if( data.chunks.currentChunkIndex < 100 ) {
+                            data.chunks.currentChunkIndex++;
+                            data.loading()   
                           } else {
-                            clearInterval( checkInterval )
+                            clearInterval( this.checkInterval[ data.name ] );
+
+                            this.props.updateFiles( {
+                              [ data.name ] : getFileGenerationAsData( data.getContent() )
+                            } );
+
                             this.setState({
-                              starting: content.getContent()
-                            })
-                            //console.log( content.getContent() )
+                              starting : true
+                            });
                           }           
                         }, 100 )
                       }}
@@ -248,23 +253,22 @@ export default class AppComponent extends COMPONENT_SETTINGS.PROTO_CLASS {
                 
               </CardContent>
             </CardActionArea>
-            <CardActions style={{margin:"20px", display: "flex", justifyContent: "space-between" }}>
-              { ( this.state.starting && !this.state.isGaming) && (
-                <Button color="primary" variant="contained" size="large" style={{margin:"auto" }} 
-                onClick={this.startGame}>Start gaming</Button>
+            <CardActions className="controllers-game-container">
+              { ( this.state.starting && !this.state.isGaming ) && (
+                <Button color="primary" variant="contained" size="large" style={{ margin:"auto" }} 
+                onClick={ this.startGame }>Start gaming</Button>
               ) }
               { ( this.state.isGaming === true ) && (
                 <>
                   <Player 
                     generations={[
                       FREE_GENERATION,
-                      "gen3.txt",
-                      "gen4.txt"
+                      ...filesGenerations
                     ]} 
-                    defaultRefresh={1} 
-                    min={0.1} 
-                    max={5}
-                    step={0.2} 
+                    defaultRefresh={ 1 } 
+                    min={ 0.1 } 
+                    max={ 5 }
+                    step={ 0.2 } 
                     getSettings={( action : string, realUpdate : any )=> {
                       this.props.settingData({
                         action : action,
@@ -272,7 +276,7 @@ export default class AppComponent extends COMPONENT_SETTINGS.PROTO_CLASS {
                       })
                     }}  
                   />
-                  <GenerationsLabelling currentValue={ this.props.contentData.numberOfGenerations } />
+                  <GenerationsLabelling currentValue={ numberOfGenerations } />
                 </>
               ) }
             </CardActions>
@@ -282,7 +286,11 @@ export default class AppComponent extends COMPONENT_SETTINGS.PROTO_CLASS {
     );
   }
 
-  // NON USATO
+
+
+
+
+  // ### NON USATO
   render222(){
 
     //const { contentData } = this.props;
@@ -323,8 +331,12 @@ export default class AppComponent extends COMPONENT_SETTINGS.PROTO_CLASS {
                 content.loading()   
               } else {
                 clearInterval( checkInterval )
+
+                // Content to save in redux 
+                getFileGenerationAsData( content.getContent() );
+
                 this.setState({
-                  starting: content.getContent()
+                  starting : true
                 })
               }           
             }, 100 )

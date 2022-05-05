@@ -1,16 +1,16 @@
 import { FREE_GENERATION } from '../../../config/app';
-import { CELL_SIZE, WIDTH, HEIGHT, COMPONENT_SETTINGS } from './GameOfLife-Settings';
+import { /*CELL_SIZE, WIDTH, HEIGHT,*/ COMPONENT_SETTINGS, getGrid, I__gridSettingsParams, DEFAULT_GRID } from './GameOfLife-Settings';
 import "./GameOfLife-Styles.scss";
 
 class Cell extends COMPONENT_SETTINGS.PROTO_CLASS_CELL {
   render() {
-    const { x, y } = this.props;
+    const { x, y, size } = this.props;
     return (
-      <div className="Cell" style={{
-        left: `${CELL_SIZE * x + 1}px`,
-        top: `${CELL_SIZE * y + 1}px`,
-        width: `${CELL_SIZE - 1}px`,
-        height: `${CELL_SIZE - 1}px`,
+      <div className="cell" style={{
+        left: `${ size * x + 1 }px`,
+        top: `${ size * y + 1 }px`,
+        width: `${ size - 1 }px`,
+        height: `${ size- 1 }px`,
       }} />
     );
   }
@@ -24,34 +24,51 @@ export default class GameOfLifeComponent extends COMPONENT_SETTINGS.PROTO_CLASS_
 
   constructor(props) {
     super(props);
-    this.rows = HEIGHT / CELL_SIZE;
-    this.cols = WIDTH / CELL_SIZE;
-
-    this.board = this.makeEmptyBoard();
-
-    setTimeout( () => this.handleRandom(), 100 );
+    // this.state.gridSettings.rows = HEIGHT / CELL_SIZE;
+    // this.state.gridSettings.cols = WIDTH / CELL_SIZE;
+    setTimeout( () => this.initGeneration(), 100 );
   }
 
   UNSAFE_componentWillReceiveProps( nextProps : any ) {
-    
-    if( nextProps.contentData.action === "generation" ) {
-      this.handleClear();
-      if( nextProps.contentData.realUpdate === FREE_GENERATION )  {
-        this.handleRandom();
+    const { action, realUpdate, initGeneration } = nextProps.contentData();
+
+    if( action === "generation" ) {
+      var gridSettingsParams : I__gridSettingsParams;
+      var cells = undefined as any;
+      var numberOfGenerations = 0;
+
+      if( realUpdate === FREE_GENERATION )  {
+        gridSettingsParams = DEFAULT_GRID;
+      } else {
+        gridSettingsParams = {
+          cellsize : 60,
+          ...initGeneration.gridSize
+        }
+        numberOfGenerations = initGeneration.initGenCounter;
+        cells = initGeneration.cells;
       }
+      var gridSettings = getGrid( gridSettingsParams )
+
+      this.handleClear( false, numberOfGenerations );
+
+      this.setState( {
+        gridSettings : gridSettings
+      } )
+
+      setTimeout( () => this.initGeneration( cells ), 100 );
     }
-    if( nextProps.contentData.action === "clear" ) {
+    if( action === "clear" ) {
       this.handleClear();
     }
-    if( nextProps.contentData.action === "try" ) {
-      this.runIteration();
+    if( action === "try" ) {
+      this.runIteration( false );
     }
-    if( nextProps.contentData.action === "interval" ) {
-      this.setState({ interval: ( nextProps.contentData.realUpdate * 1000 ) });
+    if( action === "interval" ) {
+      this.setState({ interval: ( realUpdate * 1000 ) });
     }
-    if( nextProps.contentData.action === "isRunning" ) {
-      this.setState({ isRunning : nextProps.contentData.realUpdate });
-      ( nextProps.contentData.realUpdate ? this.runGame() : this.stopGame() )
+    if( action === "isRunning" ) {
+      this.setState({ isRunning : realUpdate });
+      ( realUpdate ? this.runGame() : this.stopGame() )
     }
 
     // if( JSON.stringify( nextProps.contentData ) != JSON.stringify( this.state ) ) {
@@ -61,10 +78,11 @@ export default class GameOfLifeComponent extends COMPONENT_SETTINGS.PROTO_CLASS_
 
   makeEmptyBoard() {
     let board = [] as any[];
-    for (let y = 0; y < this.rows; y++) {
-      board[y] = [] as boolean[];
-      for (let x = 0; x < this.cols; x++) {
-        board[y][x] = false;
+    const { rows, cols } = this.state.gridSettings;
+    for (let y = 0; y < rows; y++) {
+      board[ y ] = [] as boolean[];
+      for ( let x = 0; x < cols; x++ ) {
+        board[ y ][ x ] = false;
       }
     }
 
@@ -83,9 +101,10 @@ export default class GameOfLifeComponent extends COMPONENT_SETTINGS.PROTO_CLASS_
 
   makeCells() {
     let cells = [] as any;
-    for (let y = 0; y < this.rows; y++) {
-      for (let x = 0; x < this.cols; x++) {
-        if (this.board[y][x]) {
+    const { rows, cols } = this.state.gridSettings;
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        if (this.board[ y ][ x ]) {
           cells.push({ x, y });
         }
       }
@@ -94,17 +113,19 @@ export default class GameOfLifeComponent extends COMPONENT_SETTINGS.PROTO_CLASS_
     return cells;
   }
 
-  handleClick = (event) => {
+  handleClick = ( event ) => {
 
     const elemOffset = this.getElementOffset();
     const offsetX = event.clientX - elemOffset.x;
     const offsetY = event.clientY - elemOffset.y;
     
-    const x = Math.floor(offsetX / CELL_SIZE);
-    const y = Math.floor(offsetY / CELL_SIZE);
+    const x = Math.floor( offsetX / this.state.gridSettings.cellsize );
+    const y = Math.floor( offsetY / this.state.gridSettings.cellsize );
 
-    if (x >= 0 && x <= this.cols && y >= 0 && y <= this.rows) {
-      this.board[y][x] = !this.board[y][x];
+    const { rows, cols } = this.state.gridSettings;
+
+    if ( x >= 0 && x <= cols && y >= 0 && y <= rows ) {
+      this.board[ y ][ x ] = !this.board[ y ][ x ];
     }
 
     this.setState({ cells: this.makeCells() });
@@ -112,13 +133,13 @@ export default class GameOfLifeComponent extends COMPONENT_SETTINGS.PROTO_CLASS_
 
   runGame = () => {
     this.setState({ isRunning: true });
-    this.runIteration();
+    this.runIteration( true );
   }
 
   stopGame = () => {
     this.setState({ isRunning: false });
     if (this.timeoutHandler) {
-      window.clearTimeout(this.timeoutHandler);
+      window.clearTimeout( this.timeoutHandler );
       this.timeoutHandler = null;
     }
   }
@@ -130,6 +151,9 @@ export default class GameOfLifeComponent extends COMPONENT_SETTINGS.PROTO_CLASS_
     }
     if( isRunning === true || isRunning === false )
       newState[ "isRunning" ] = isRunning;
+
+    if( isRunning === false )
+      this.stopGame();
     this.setState( newState );
     this.props.settingData({
       action : "realtimeChanging",
@@ -137,21 +161,22 @@ export default class GameOfLifeComponent extends COMPONENT_SETTINGS.PROTO_CLASS_
     })
   }
 
-  runIteration() {
+  runIteration = ( restarting : boolean ) : void => {
     let newBoard = this.makeEmptyBoard();
+    const { rows, cols } = this.state.gridSettings;
 
-    for (let y = 0; y < this.rows; y++) {
-      for (let x = 0; x < this.cols; x++) {
-        let neighbors = this.calculateNeighbors(this.board, x, y);
-        if (this.board[y][x]) {
-          if (neighbors === 2 || neighbors === 3) {
-            newBoard[y][x] = true;
+    for ( let y = 0; y < rows; y++ ) {
+      for ( let x = 0; x < cols; x++ ) {
+        let neighbors = this.calculateNeighbors( this.board, x, y );
+        if (this.board[ y ][ x ]) {
+          if ( neighbors === 2 || neighbors === 3 ) {
+            newBoard[ y ][ x ] = true;
           } else {
-            newBoard[y][x] = false;
+            newBoard[ y ][ x ] = false;
           }
         } else {
-          if (!this.board[y][x] && neighbors === 3) {
-            newBoard[y][x] = true;
+          if ( !this.board[ y ][ x ] && neighbors === 3 ) {
+            newBoard[ y ][ x ] = true;
           }
         }
       }
@@ -159,13 +184,12 @@ export default class GameOfLifeComponent extends COMPONENT_SETTINGS.PROTO_CLASS_
 
     this.board = newBoard;
     this.updateStoreAndRedux( ( this.state.numberOfGenerations + 1 ) )
-
-    console.log("this.state.isRunning:", this.state.isRunning)
-    //if( this.state.isRunning ) {
-      this.timeoutHandler = window.setTimeout(() => {
-        this.runIteration();
+    
+    if( restarting ) {
+      this.timeoutHandler = window.setTimeout( () => {
+        this.runIteration( restarting );
       }, this.state.interval);
-    //}
+    }
   }
 
   /**
@@ -174,15 +198,16 @@ export default class GameOfLifeComponent extends COMPONENT_SETTINGS.PROTO_CLASS_
    * @param {int} x 
    * @param {int} y 
    */
-  calculateNeighbors(board, x, y) {
+  calculateNeighbors( board, x, y ) {
     let neighbors = 0;
-    const dirs = [[-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1]];
-    for (let i = 0; i < dirs.length; i++) {
-      const dir = dirs[i];
-      let y1 = y + dir[0];
-      let x1 = x + dir[1];
+    const dirs = [[-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1]];    
+    const { rows, cols } = this.state.gridSettings;
+    for ( let i = 0; i < dirs.length; i++ ) {
+      const dir = dirs[ i ];
+      let y1 = y + dir[ 0 ];
+      let x1 = x + dir[ 1 ];
 
-      if (x1 >= 0 && x1 < this.cols && y1 >= 0 && y1 < this.rows && board[y1][x1]) {
+      if ( x1 >= 0 && x1 < cols && y1 >= 0 && y1 < rows && board[ y1 ][ x1 ] ) {
         neighbors++;
       }
     }
@@ -194,34 +219,58 @@ export default class GameOfLifeComponent extends COMPONENT_SETTINGS.PROTO_CLASS_
   //   this.setState({ interval: event.target.value });
   // }
 
-  handleClear = () => {
+  handleClear = ( reboard = true, numberOfGenerations = 0 ) => {
     if( window.confirm( "Are you sure? This will be clear everything" ) !== false ) {
-      this.board = this.makeEmptyBoard();
-      this.updateStoreAndRedux( 0, false )
+      if( reboard ) {
+        this.board = this.makeEmptyBoard();
+      }
+      this.updateStoreAndRedux( numberOfGenerations, false )
     }
   }
 
-  handleRandom = () => {
-    for (let y = 0; y < this.rows; y++) {
-      for (let x = 0; x < this.cols; x++) {
-        this.board[y][x] = (Math.random() >= 0.5);
+  initGeneration = ( initCells? : string[] ) : void => {
+    var getRandom = () : boolean => ( Math.random() >= 0.5 );
+    var getIf = ( y : number, x : number ) => {
+      var isAlive = initCells && initCells.includes( `${ y + 1 },${ x + 1 }` );
+      return isAlive;
+    }
+
+    let board = [] as any[];
+    const { rows, cols } = this.state.gridSettings;
+    for ( let y = 0; y < rows; y++ ) {
+      board[y] = [] as boolean[];
+      for ( let x = 0; x < cols; x++ ) {
+        board[ y ][ x ] = ( initCells !== undefined ? getIf( y, x ) : getRandom() );
       }
     }
+    this.board = board;
 
     this.setState({ cells: this.makeCells() });
   }
 
+  // handleRandom = ( settings? ) => {
+  //   for (let y = 0; y < this.state.gridSettings.rows; y++) {
+  //     for (let x = 0; x < this.state.gridSettings.cols; x++) {
+  //       this.board[y][x] = (Math.random() >= 0.5);
+  //     }
+  //   }
+
+  //   this.setState({ cells: this.makeCells() });
+  // }
+
   render() {
     const { cells /*, interval, isRunning*/ } = this.state;
+    const { width, height, cellsize } = this.state.gridSettings;
+
     return (
-      <div>
-        <div className="Board"
-          style={{ width: WIDTH, height: HEIGHT, backgroundSize: `${CELL_SIZE}px ${CELL_SIZE}px`}}
+      <div className="game-of-life">
+        <div className="board"
+          style={{ width: width, height: height, backgroundSize: `${ cellsize }px ${ cellsize }px`}}
           onClick={ this.handleClick }
           ref={ ( n ) => { this.boardRef = n; }}>
 
           { cells.map( cell => (
-            <Cell x={ cell["x"] } y={ cell["y"] } key={ `${cell["x"]},${cell["y"]}` } />
+            <Cell x={ cell["x"] } y={ cell["y"] } size={ cellsize } key={ `${ cell[ "x" ] },${ cell[ "y" ] }` } />
           ))}
         </div>
       </div>
