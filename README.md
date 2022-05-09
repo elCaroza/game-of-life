@@ -1,7 +1,7 @@
 
 
 # React-ts scaffolder setup
-This is a simulation of [https://playgameoflife.com/](Game Of Life) Written by Erik Fontanari in React-TS using scss, redux.
+This is a simulation of [Game Of Life](https://playgameoflife.com/) Written by Erik Fontanari in React-TS using scss, redux.
 I used different kind of approaches within react environment just to show the ability of communicating between them.
 PS: Drag and drog can cause issues, re-try refreshing the page and re-do.
 
