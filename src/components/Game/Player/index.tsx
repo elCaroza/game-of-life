@@ -55,55 +55,55 @@ export default function Player( props ) {
   }
 
   return (
-      <div className="player">
-         <Box sx={{ width: 250 }}>
-          <FormControl sx={{ m: 1, minWidth: 200, maxWidth: 300 }}>
-            <InputLabel shrink htmlFor="select-single-native">
-              Generation init
-            </InputLabel>
-            <Select
-              native
-              value={ selection }
-              // @ts-ignore Typings are not considering `native`
-              onChange={ handleChangeMultiple }
-              label="Native"
-              inputProps={{
-                id : "select-single-native",
-              }}
-            >
-              { props.generations.map( ( name ) => (
-                <option key={ name } value={ name }>
-                  { name }
-                </option>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
+    <div className="player">
         <Box sx={{ width: 250 }}>
-            <Typography id="non-linear-slider" gutterBottom>
-                Refresh on: <strong>{ refresh }</strong> seconds
-            </Typography>
-            <Slider
-                value={ refresh } 
-                min={ props.min }
-                step={ props.step }
-                max={ props.max }
-                onChange={ handleChangeRefresh }
-                valueLabelDisplay="auto"
-                aria-labelledby="non-linear-slider"
-            />
-        </Box>
-        <Box className="box-player-container">
-            <Button variant="outlined" size="large" onClick={ ()=> handleClick( "isRunning" ) } startIcon={( value ? <PauseIcon /> : <PlayArrowIcon /> )} className="btn-player">
-                { value ? "Pause" : "Play" }
-            </Button>
-            <Button disabled={ isFreeGeneration() && isRunning() } variant="outlined" size="large" onClick={ () => handleClick( "try" ) } startIcon={<TryIcon />} className="btn-player">
-                Try
-            </Button>
-            <Button variant="outlined" size="large" onClick={ () => handleClick( "clear" ) } startIcon={<ClearIcon />} className="btn-player">
-                Clear
-            </Button>
-        </Box>
-      </div>  
+        <FormControl sx={{ m: 1, minWidth: 200, maxWidth: 300 }}>
+          <InputLabel shrink htmlFor="select-single-native">
+            Generation init
+          </InputLabel>
+          <Select
+            native
+            value={ selection }
+            // @ts-ignore Typings are not considering `native`
+            onChange={ handleChangeMultiple }
+            label="Native"
+            inputProps={{
+              id : "select-single-native",
+            }}
+          >
+            { props.generations.map( ( name ) => (
+              <option key={ name } value={ name }>
+                { name }
+              </option>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+      <Box sx={{ width: 250 }}>
+          <Typography id="non-linear-slider" gutterBottom>
+            Refresh on: <strong>{ refresh }</strong> seconds
+          </Typography>
+          <Slider
+            value={ refresh } 
+            min={ props.min }
+            step={ props.step }
+            max={ props.max }
+            onChange={ handleChangeRefresh }
+            valueLabelDisplay="auto"
+            aria-labelledby="non-linear-slider"
+          />
+      </Box>
+      <Box className="box-player-container">
+        <Button variant="outlined" size="large" onClick={ ()=> handleClick( "isRunning" ) } startIcon={( value ? <PauseIcon /> : <PlayArrowIcon /> )} className="btn-player">
+          { value ? "Pause" : "Play" }
+        </Button>
+        <Button disabled={ isFreeGeneration() && isRunning() } variant="outlined" size="large" onClick={ () => handleClick( "try" ) } startIcon={<TryIcon />} className="btn-player">
+          Try
+        </Button>
+        <Button variant="outlined" size="large" onClick={ () => handleClick( "clear" ) } startIcon={<ClearIcon />} className="btn-player">
+          Clear
+        </Button>
+      </Box>
+    </div>  
   );
 }
